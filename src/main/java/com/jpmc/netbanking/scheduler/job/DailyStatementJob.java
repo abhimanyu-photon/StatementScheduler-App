@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class DailyStatementJob extends QuartzJobBean {
 
     private final RestTemplate restTemplate;
 
+    @Value("${web.application.client.port}")
+    private String clientServerUrl;
+
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
@@ -36,7 +40,7 @@ public class DailyStatementJob extends QuartzJobBean {
             // Extract only the date part
             SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy-MM-dd");
             String extractedDate = yearFormat.format(date);
-        String url = "http://localhost:8180/api/account/transactions?accountNumber={accountNumber}&fromDate={fromDate}&toDate={toDate}" ;
+        String url = clientServerUrl+"/api/account/transactions?accountNumber={accountNumber}&fromDate={fromDate}&toDate={toDate}" ;
         Map<String, String> params = new HashMap<>();
         params.put("accountNumber",accountNumber);
         params.put("fromDate", extractedDate);
